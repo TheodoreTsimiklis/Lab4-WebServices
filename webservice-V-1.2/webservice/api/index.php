@@ -38,7 +38,6 @@
 
         function __construct()
         {
-            
         }
 
         function processRequest(){
@@ -84,10 +83,11 @@
                     // What data should we expect and where to store it?
                    // $controller->list($apikey);
 
-                    $this->processResponse();
+                    $this->processGetResponse();
 
                     break;
                 case 'POST':
+                    $this->processPostResponse();
                     break;
                 case 'PUT':
                     break;
@@ -99,74 +99,134 @@
                     break;
 
             }
-
-
-
         }
 
-        function processResponse(){
+        // method that process the GET response
+        function processGetResponse(){
+            // Read the API key sent by the client
+            $apikey = $this->request->urlparams['apikey'];
 
-                    // Read the API key sent by the client
-                    $apikey = $this->request->urlparams['apikey'];
+            $resourceID = $this->request->urlparams['id'];
 
-                    $resourceID = $this->request->urlparams['id'];
+            // Determine the reponse properties
+                $header = array();
+                $payload = array();
+                $statuscode = 0;
+                $statustext = "";
+                $contenttype = "";
 
-                    // Determine the reponse properties
-                        $header = array();
-                        $payload = array();
-                        $statuscode = 0;
-                        $statustext = "";
-                        $contenttype = "";
+                // Get the data/resource
+                $rawpayload = $this->controller->list($apikey, $resourceID);
 
-                        // Get the data/resource
-                        $rawpayload = $this->controller->list($apikey, $resourceID);
+                // Check if data  was returned: the data here is the requested resource
+                // If the data is found and can be returned
+                // The HTTP status code of the response should be: 200
+                if(count($rawpayload) > 0){
 
-                        // Check if data  was returned: the data here is the requested resource
-                        // If the data is found and can be returned
-                        // The HTTP status code of the response should be: 200
-                        if(count($rawpayload) > 0){
-    
-                            $statuscode = 200;
-                            $statustext = "OK";
-    
-                        }else{
-    
-                            $statuscode = 404;
-                            $statustext = "Not Found";
-    
-                            $rawpayload = array('message' => "No data found, possibly invalid enpoint.");
-    
-                        }
-    
-                        // How do we decide what is the response content-type?
-                        switch($this->request->header['Accept']){
-    
-                            case 'application/json':
-                                                    // Serialize the array of objects into a JSON array
-                                                    $payload = json_encode($rawpayload);
-                                                    $contenttype = 'application/json';
-                                break;
-                            case 'application/xml':
-                                break;
-                            default:
-                                                    $payload = json_encode($rawpayload);
-                                                    $contenttype = 'application/json';                               
-                        }
+                    $statuscode = 200;
+                    $statustext = "OK";
 
-                        $headerfields = ['Status-Code'=> $statuscode, 'Status-Text' => $statustext, 'Content-Type' => $contenttype ];
+                }else{
 
-                        $responseBuilder  = new Responsebuilder($headerfields, $payload);
+                    $statuscode = 404;
+                    $statustext = "Not Found";
 
-                        $this->response = $responseBuilder->getResponse();
+                    $rawpayload = array('message' => "No data found, possibly invalid enpoint.");
+
+                }
+
+                // How do we decide what is the response content-type?
+                switch($this->request->header['Accept']){
+
+                    case 'application/json':
+                        // Serialize the array of objects into a JSON array
+                        $payload = json_encode($rawpayload);
+                        $contenttype = 'application/json';
+                        break;
+                    case 'application/xml':
+                        break;
+                    default:
+                        $payload = json_encode($rawpayload);
+                        $contenttype = 'application/json';                               
+                }
+
+                $headerfields = ['Status-Code'=> $statuscode, 'Status-Text' => $statustext, 'Content-Type' => $contenttype ];
+
+                $responseBuilder  = new Responsebuilder($headerfields, $payload);
+
+                $this->response = $responseBuilder->getResponse();
+            }
+
+        // method that proces the POST response
+        function processPostResponse() {
+            // Takes raw data from the request
+            $json = file_get_contents('php://input');
+
+            // Converts it into a PHP object
+            $data = json_decode($json);
+            //var_dump($data);
+
+            $data = [
+                "apikey" => $data->api_Key,  // taken by clientID
+                "user_ID" => $data->user_ID,
+                "donor_Name" => $data->donor_Name,
+                "date_Time" =>  $data->date_Time
+            ];
+
+            // Determine the reponse properties
+            $header = array();
+            $payload = array();
+            $statuscode = 0;
+            $statustext = "";
+            $contenttype = "";
+            
+            $rawpayload = $this->controller->convertVideo($data);
+            // var_dump($rawpayload);
+            // Check if data  was returned: the data here is the requested resource
+            // If the data is found and can be returned
+            // The HTTP status code of the response should be: 200
+            if (count($rawpayload) > 0){
+                $statuscode = 200;
+                $statustext = "OK";
+            }
+            else {   // 0 rows in the databasse because the resource was not found
+                $statuscode = 404;
+                $statustext = "Not Found";
+
+                $rawpayload = array('message' => "Possibly invalid enpoint.");
+            }
+
+            // How do we decide what is the response content-type?
+            switch($this->request->header['Accept']) {  // Making sure we know what the client wants -> we are generalizing/assuming that we know that we know what the client wants back(Accept)
+                case 'application/json':
+                    // Serialize the array of objects into a JSON array
+                    $payload = json_encode($rawpayload);
+                    $contenttype = 'application/json';
+                    break;
+                case 'application/xml':
+                    break;
+                default:
+                    $payload = json_encode($rawpayload);
+                    $contenttype = 'application/json';                               
+            }
+            //set up the headerfields that will be sent to the response builder
+            $headerfields = ['Status-Code'=> $statuscode, 'Status-Text' => $statustext, 'Content-Type' => $contenttype ];
+            // echo $payload; testing purpose
+            // build the headerfields array that will be pass to the ResponseBuilder -> put all the data in the header array 
+            $responseBuilder  = new Responsebuilder($headerfields, $payload);
+
+            $this->response = $responseBuilder->getResponse(); // which returns a response objec
+            $body = json_decode($this->response->payload);
+        
+            // for printing the payload response
+            echo "";
         }
-
-
     }// API class
 
     $api = new API();
 
     $api->processRequest();
 
-    echo( $api->response->payload);
+    // echo( $api->response->payload);
 
 ?>

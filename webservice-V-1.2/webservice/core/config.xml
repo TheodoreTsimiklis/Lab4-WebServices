@@ -4,6 +4,6 @@
         <host>localhost</host>
         <user>root</user>
         <password></password>
-        <dbname>webservice</dbname>
+        <dbname>lab4_webservice</dbname>
     </database>
 </config>
