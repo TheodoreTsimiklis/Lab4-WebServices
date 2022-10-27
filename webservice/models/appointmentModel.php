@@ -15,21 +15,18 @@ require(dirname(__DIR__) . "/core/database/dbconnectionmanager.php");
  * Database model
  */
 
-class Appointment
+class AppointmentModel
 {
-
     public $appointment_ID;
     public $client_ID;
     public $user_ID;
     public $date_Time;
     public $donor_Name;
 
-
     private $conn;
 
     function __construct()
     {
-
         $dbconnmanager = new DBConnectionManager();
 
         $this->conn = $dbconnmanager->getconnection();

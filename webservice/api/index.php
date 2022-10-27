@@ -167,7 +167,7 @@
             //var_dump($data);
 
             $data = [
-                "apikey" => $data->api_Key,  // taken by clientID
+                "api_Key" => $data->api_Key,  // taken by clientID
                 "user_ID" => $data->user_ID,
                 "donor_Name" => $data->donor_Name,
                 "date_Time" =>  $data->date_Time
@@ -179,8 +179,8 @@
             $statuscode = 0;
             $statustext = "";
             $contenttype = "";
-            
-            $rawpayload = $this->controller->convertVideo($data);
+           # WORK HERE TOMORROW
+            $rawpayload = $this->controller->createAppointment($data);
             // var_dump($rawpayload);
             // Check if data  was returned: the data here is the requested resource
             // If the data is found and can be returned
@@ -219,7 +219,8 @@
             $body = json_decode($this->response->payload);
         
             // for printing the payload response
-            echo "";
+            if () 
+                echo "APPOINTMENT SUCCESSFUL";
         }
     }// API class
 

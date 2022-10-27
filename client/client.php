@@ -1,9 +1,7 @@
 <?php
-
     $ch = curl_init();
-    
-    $url = "http://localhost/webservice/api/appointments/"; // set url
-
+    $url = "http://localhost/webservice/api/index.php?resource=appointment&api_Key=apikey123"; // set url
+#
     $data = json_encode(array(
         "api_Key" => "apikey123",
         "user_ID" => 1,
@@ -18,17 +16,13 @@
     
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json'
-    ));    
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/json", 'Accept: application/json', 'Expect:', 'Content-Length: ' . strlen($data)));
 
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
     // Execute
     $response = curl_exec($ch);
-    
+    echo $response;
     // Closing
     curl_close($ch);    
-
-
 ?>
