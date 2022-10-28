@@ -25,8 +25,8 @@ class AppointmentController {
         ];
         $result = $this->appointmentModel->addAppointment($data);
 
-        $resultData = array('result' => $result, 'data' => $data);
-        return $resultData; // returns to index.php method processPostResponse
+        //$resultData = array('result' => $result, 'data' => $data);
+        return $result; // returns to index.php method processPostResponse
     }
 }
 

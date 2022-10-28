@@ -1,6 +1,6 @@
 <?php
     $ch = curl_init();
-    $url = "http://localhost/webservice/api/index.php?resource=appointment&api_Key=apikey123"; // set url
+    $url = "http://localhost/webservice/api/index.php?resource=appointment"; // set url
 #
     $data = json_encode(array(
         "api_Key" => "apikey123",

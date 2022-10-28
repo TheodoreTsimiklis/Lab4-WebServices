@@ -163,15 +163,15 @@
             $json = file_get_contents('php://input');
 
             // Converts it into a PHP object
-            $data = json_decode($json);
+            $data = json_decode($json, true);
             //var_dump($data);
 
-            $data = [
-                "api_Key" => $data->api_Key,  // taken by clientID
-                "user_ID" => $data->user_ID,
-                "donor_Name" => $data->donor_Name,
-                "date_Time" =>  $data->date_Time
-            ];
+            // $data = [
+            //     "api_Key" => $data->api_Key,  // taken by clientID
+            //     "user_ID" => $data->user_ID,
+            //     "donor_Name" => $data->donor_Name,
+            //     "date_Time" =>  $data->date_Time
+            // ];
 
             // Determine the reponse properties
             $header = array();
@@ -179,13 +179,15 @@
             $statuscode = 0;
             $statustext = "";
             $contenttype = "";
-           # WORK HERE TOMORROW
-            $rawpayload = $this->controller->createAppointment($data);
-            // var_dump($rawpayload);
+            # WORK HERE TOMORROW
+            $appointmentStatus = $this->controller->createAppointment($data);
+            echo $appointmentStatus;
+            $rawpayload = array("appointmentStatus" => $appointmentStatus);
+            var_dump($rawpayload);
             // Check if data  was returned: the data here is the requested resource
             // If the data is found and can be returned
             // The HTTP status code of the response should be: 200
-            if (count($rawpayload) > 0){
+            if (!is_null($rawpayload)){
                 $statuscode = 200;
                 $statustext = "OK";
             }
@@ -216,11 +218,14 @@
             $responseBuilder  = new Responsebuilder($headerfields, $payload);
 
             $this->response = $responseBuilder->getResponse(); // which returns a response objec
-            $body = json_decode($this->response->payload);
-        
+           
+            $responseBody = json_decode($this->response->payload);
+
             // for printing the payload response
-            if () 
+            if ($responseBody->appointmentStatus) {
                 echo "APPOINTMENT SUCCESSFUL";
+            }
+                
         }
     }// API class
 
