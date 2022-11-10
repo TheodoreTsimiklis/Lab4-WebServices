@@ -37,8 +37,7 @@
         private $controller;
 
         function __construct()
-        {
-        }
+        {}
 
         function processRequest(){
 
@@ -166,24 +165,18 @@
             $data = json_decode($json, true);
             //var_dump($data);
 
-            // $data = [
-            //     "api_Key" => $data->api_Key,  // taken by clientID
-            //     "user_ID" => $data->user_ID,
-            //     "donor_Name" => $data->donor_Name,
-            //     "date_Time" =>  $data->date_Time
-            // ];
-
             // Determine the reponse properties
             $header = array();
             $payload = array();
             $statuscode = 0;
             $statustext = "";
             $contenttype = "";
+
             # WORK HERE TOMORROW
             $appointmentStatus = $this->controller->createAppointment($data);
-            echo $appointmentStatus;
+          
             $rawpayload = array("appointmentStatus" => $appointmentStatus);
-            var_dump($rawpayload);
+            // var_dump($rawpayload);
             // Check if data  was returned: the data here is the requested resource
             // If the data is found and can be returned
             // The HTTP status code of the response should be: 200
@@ -223,7 +216,10 @@
 
             // for printing the payload response
             if ($responseBody->appointmentStatus) {
-                echo "APPOINTMENT SUCCESSFUL";
+                echo "APPOINTMENT BOOKING SUCCESSFUL FOR " . $data['donor_Name'] . " ON " . date("F-d-Y", strtotime($data['date_Time'])) . ", " . date("h:i", strtotime($data['date_Time']));
+            }
+            else {
+                echo "APPOINTMENT BOOKING FAILED";
             }
                 
         }

@@ -2,9 +2,9 @@
 
 require(dirname(__DIR__)."/models/appointmentModel.php");
 
-class AppointmentController {
+class AppointmentsController {
 
-    private $appointmentModel; //model
+    private $appointmentsModel; //model
     
     function __construct()
     {
